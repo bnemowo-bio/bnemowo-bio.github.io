@@ -4,21 +4,16 @@
     <meta charset="UTF-8" />
     <title>owo 🦈</title>
     <link rel="icon" type="image/png" href="assets/shark.png">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <meta name="darkreader-lock">
     <meta name="color-scheme" content="dark only">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
 </head>
-    <!-- YOUR MOM || WTF RU LOOKING FOR -->
+<!-- YOUR MOM || WTF RU LOOKING FOR -->
 <body>
     <video id="bg-video" autoplay muted loop playsinline>
         <source src="assets/bg.mp4" type="video/mp4">
@@ -26,11 +21,19 @@
 
     <div class="overlay"></div>
 
+    <div class="credit-wrapper">
+        <span class="credit" id="credit-copy" data-email="baonam04012010@gmail.com">
+            made by nem
+        </span>
+    </div>
+
     <main class="container">
         <img src="assets/avatar.jpg" class="avatar">
-
         <h1>Nem</h1>
-        <p class="bio">Intern Coder • Student</p>
+        <p class="bio">
+            Intern Coder • Student<br>
+            <span class="sub-bio">competitive programming's cooking me</span>
+        </p>
 
         <div class="links">
 
@@ -39,56 +42,73 @@
                     <i class="fa-brands fa-discord"></i>
                 </a>
                 <span class="icon-tooltip">Discord</span>
-                
+
                 <div class="discord-card" id="discord-card">
                     <div class="dc-top">
-
                         <div class="avatar-box">
                             <img id="dc-avatar" />
                             <div id="dc-decoration" class="avatar-ring"></div>
                             <span class="status-dot" id="status-dot"></span>
                         </div>
-
                         <div class="dc-info" id="dc-info">
                             <div id="dc-name" class="dc-name"></div>
                             <div id="dc-username" class="dc-username"></div>
                         </div>
                     </div>
 
-                    
                     <div class="dc-bottom">
-
                         <div class="spotify-box" id="spotify-section">
                             <div class="album-art" id="album-art"></div>
-                             <div class="spotify-info">
-                                <div class="marquee-wrap"><div id="spotify-song" class="marquee-text"></div></div>
-                                <div class="marquee-wrap"><div id="spotify-artist" class="marquee-text"></div></div>
+                            <div class="spotify-info">
+                                <div class="marquee-wrap" id="spotify-song-wrap">
+                                    <div class="marquee-track" id="spotify-song-track">
+                                        <span id="spotify-song-a" class="song-text"></span>
+                                        <span id="spotify-song-b" class="song-text"></span>
+                                    </div>
+                                </div>
+                                <div class="marquee-wrap" id="spotify-artist-wrap">
+                                    <div class="marquee-track" id="spotify-artist-track">
+                                        <span id="spotify-artist-a" class="artist-text"></span>
+                                        <span id="spotify-artist-b" class="artist-text"></span>
+                                    </div>
+                                </div>
                                 <div class="spotify-progress">
                                     <div id="spotify-bar"></div>
                                 </div>
-                             </div>
+                            </div>
                         </div>
 
                         <div class="activity-box" id="dc-activity">
-                            <div class="activity-name" id="activity-name"></div>
-                            <div class="activity-details" id="activity-details"></div>
-                            <div class="activity-time" id="activity-time"></div>
+                            <div class="activity-bg" id="activity-bg"></div>
+                            <div class="activity-content">
+                                <div id="activity-name"></div>
+                                <div id="activity-details"></div>
+                                <div id="activity-time"></div>
+                            </div>
                         </div>
                     </div>
-                        
-
-
                 </div>
             </div>
 
+            <a href="https://steamcommunity.com/id/bnemowo/" target="_blank" class="icon-btn-wrapper">
+                <span class="icon-btn"><i class="fa-brands fa-steam"></i></span>
+                <span class="icon-tooltip">Steam</span>
+            </a>
+
+            <a href="https://github.com/bnemowo/" target="_blank" class="icon-btn-wrapper">
+                <span class="icon-btn"><i class="fa-brands fa-github"></i></span>
+                <span class="icon-tooltip">Github</span>
+            </a>
 
             <a href="https://www.instagram.com/bnemowo/" target="_blank" class="icon-btn-wrapper">
-                <span class="icon-btn">
-                    <i class="fa-brands fa-instagram"></i>
-                </span>
+                <span class="icon-btn"><i class="fa-brands fa-instagram"></i></span>
                 <span class="icon-tooltip">Instagram</span>
             </a>
-            
+
+            <a href="https://www.facebook.com/bnemowo/" target="_blank" class="icon-btn-wrapper">
+                <span class="icon-btn"><i class="fa-brands fa-facebook"></i></span>
+                <span class="icon-tooltip">Facebook</span>
+            </a>
         </div>
 
         <p class="views">
