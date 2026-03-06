@@ -9,7 +9,7 @@
     <meta name="color-scheme" content="dark only">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -38,12 +38,16 @@
         <div class="links">
 
             <div class="discord-wrapper icon-btn-wrapper">
-                <a href="#" target="_blank" class="discord-btn" id="discord-link">
+                <button class="discord-btn" id="discord-link">
                     <i class="fa-brands fa-discord"></i>
-                </a>
+                </button>
                 <span class="icon-tooltip">Discord</span>
+                <div class="discord-backdrop" id="discord-backdrop" onclick="closeDiscordCard(event)"></div>
 
                 <div class="discord-card" id="discord-card">
+                    <button class="dc-close" id="dc-close" onclick="closeDiscordCard(event)">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                     <div class="dc-top">
                         <div class="avatar-box">
                             <img id="dc-avatar" />
@@ -87,25 +91,31 @@
                             </div>
                         </div>
                     </div>
+
+                    <a href="https://discord.com/users/941992157416398858" target="_blank" class="dc-visit-btn" onclick="event.stopPropagation()">
+                        <i class="fa-brands fa-discord"></i>
+                        <span>view profile</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    </a>
                 </div>
             </div>
 
-            <a href="https://steamcommunity.com/id/bnemowo/" target="_blank" class="icon-btn-wrapper">
+            <a href="https://steamcommunity.com/id/bnemowo" target="_blank" class="icon-btn-wrapper">
                 <span class="icon-btn"><i class="fa-brands fa-steam"></i></span>
                 <span class="icon-tooltip">Steam</span>
             </a>
 
-            <a href="https://github.com/bnemowo/" target="_blank" class="icon-btn-wrapper">
+            <a href="https://github.com/bnemowo" target="_blank" class="icon-btn-wrapper">
                 <span class="icon-btn"><i class="fa-brands fa-github"></i></span>
                 <span class="icon-tooltip">Github</span>
             </a>
 
-            <a href="https://www.instagram.com/bnemowo/" target="_blank" class="icon-btn-wrapper">
+            <a href="https://www.instagram.com/bnemowo" target="_blank" class="icon-btn-wrapper">
                 <span class="icon-btn"><i class="fa-brands fa-instagram"></i></span>
                 <span class="icon-tooltip">Instagram</span>
             </a>
 
-            <a href="https://www.facebook.com/bnemowo/" target="_blank" class="icon-btn-wrapper">
+            <a href="https://www.facebook.com/bnemowo" target="_blank" class="icon-btn-wrapper">
                 <span class="icon-btn"><i class="fa-brands fa-facebook"></i></span>
                 <span class="icon-tooltip">Facebook</span>
             </a>
@@ -120,8 +130,137 @@
                 <span class="icon-tooltip">Views</span>
             </span>
         </p>
+
+        <div class="music-player">
+            <audio id="audio"></audio>
+
+            <div class="music-player-inner">
+                <div class="music-left">
+                    <div class="music-cover-wrap">
+                        <img id="cover" class="music-cover">
+                    </div>
+                    <div class="music-info">
+                        <div class="marquee-wrap music-marquee-wrap" id="music-title-wrap">
+                            <div class="marquee-track" id="music-title-track">
+                                <span id="music-title-a" class="music-title"></span>
+                                <span id="music-title-b" class="music-title"></span>
+                            </div>
+                        </div>
+                        <div class="marquee-wrap music-marquee-wrap" id="music-artist-wrap">
+                            <div class="marquee-track" id="music-artist-track">
+                                <span id="music-artist-a" class="music-artist"></span>
+                                <span id="music-artist-b" class="music-artist"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="music-controls">
+                    <button id="shuffle"><i class="fa-solid fa-shuffle"></i></button>
+                    <button id="prev"><i class="fa-solid fa-backward"></i></button>
+                    <button id="play"><i class="fa-solid fa-play"></i></button>
+                    <button id="next"><i class="fa-solid fa-forward"></i></button>
+                </div>
+
+                <div class="music-right">
+                    <button id="mute"><i class="fa-solid fa-volume-high"></i></button>
+                    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
+                </div>
+            </div>
+
+            <div class="music-progress-row">
+                <div class="time-row">
+                    <span id="current-time">-:-</span>
+                    <input type="range" id="progress" value="0">
+                    <span id="total-time">-:-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DONATE BUTTON -->
+        <div class="donate-btn-wrapper">
+            <button class="donate-trigger" onclick="openDonate()">
+                <i class="fa-regular fa-heart"></i>
+                <span>donate</span>
+            </button>
+        </div>
     </main>
 
+    <!-- DONATE MODAL -->
+    <div class="donate-overlay" id="donate-overlay" onclick="overlayClick(event)">
+        <div class="donate-modal" id="donate-modal">
+
+            <div class="modal-header">
+                <div class="modal-title-block">
+                    <div class="modal-label">// support</div>
+                    <div class="modal-title">Buy nem a coffee ☕</div>
+                </div>
+                <button class="modal-close" onclick="closeDonate()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="switchTab('qr', this)">
+                    <i class="fa-solid fa-qrcode"></i> QR Code
+                </button>
+                <button class="tab-btn" onclick="switchTab('bank', this)">
+                    <i class="fa-solid fa-building-columns"></i> Bank Transfer
+                </button>
+            </div>
+
+            <!-- QR TAB -->
+            <div class="tab-panel active" id="tab-qr">
+                <div class="qr-section">
+                    <div class="qr-frame">
+                        <div id="donate-qr"></div>
+                    </div>
+                    <div class="qr-hint">scan with your banking app</div>
+                    <div class="qr-hint">VietQR / Napas compatible</div>
+                </div>
+            </div>
+
+            <!-- BANK TRANSFER TAB -->
+            <div class="tab-panel" id="tab-bank">
+                <div class="bank-card">
+                    <div class="bank-row">
+                        <div class="bank-label">Bank</div>
+                        <div class="bank-value">MB Bank</div>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="bank-row">
+                        <div class="bank-label">Account Number</div>
+                        <div class="bank-value">100804014444</div>
+                        <button class="copy-btn" onclick="copyField('100804014444', this)">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="bank-row">
+                        <div class="bank-label">Account Number</div>
+                        <div class="bank-value">VQRQABTRF1588</div>
+                        <button class="copy-btn" onclick="copyField('VQRQABTRF1588', this)">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="bank-row">
+                        <div class="bank-label">Name</div>
+                        <div class="bank-value">Nguyen Bao Nam</div>
+                        <button class="copy-btn" onclick="copyField('Nguyen Bao Nam', this)">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-note">
+                    any amount is appreciated 🙏
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

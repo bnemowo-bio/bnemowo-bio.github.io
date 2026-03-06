@@ -100,7 +100,7 @@ function refreshMarquees() {
         setMarquee(artistTrack, document.getElementById("spotify-artist-a"), document.getElementById("spotify-artist-b"), lastArtist);
 }
 
-function formatTime(ms) {
+function formatActivityTime(ms) {
     const s = Math.floor(ms / 1000);
     const m = Math.floor(s / 60);
     const h = Math.floor(m / 60);
@@ -173,7 +173,7 @@ async function loadDiscord() {
             nameEl.textContent = "🎮 " + game.name;
             detailsEl.textContent = game.details || "";
             timeEl.textContent = game.timestamps?.start
-                ? `⏱ ${formatTime(Date.now() - game.timestamps.start)}`
+                ? `⏱ ${formatActivityTime(Date.now() - game.timestamps.start)}`
                 : "";
             activityBox.style.display = "flex";
             section.style.flex = "0 0 90px";
@@ -230,7 +230,8 @@ async function loadDiscord() {
 
             const start = spotify.timestamps.start;
             const end = spotify.timestamps.end;
-            bar.style.width = Math.min(((Date.now() - start) / (end - start)) * 100, 100) + "%";
+            bar.__spotifyStart = start;
+            bar.__spotifyEnd = end;
 
         } else {
             section.style.display = "none";
@@ -245,12 +246,274 @@ async function loadDiscord() {
 }
 
 loadDiscord();
-setInterval(loadDiscord, 1000);
+// poll less frequently on mobile to save CPU/battery
+const pollInterval = window.innerWidth <= 768 ? 5000 : 1000;
+setInterval(loadDiscord, pollInterval);
+
+// smooth spotify bar via rAF instead of relying on CSS transition + setInterval
+let rafId = null;
+function tickSpotifyBar() {
+    const bar = document.getElementById("spotify-bar");
+    const startEl = bar.__spotifyStart;
+    const endEl = bar.__spotifyEnd;
+    if (startEl && endEl) {
+        const pct = Math.min(((Date.now() - startEl) / (endEl - startEl)) * 100, 100);
+        bar.style.width = pct + "%";
+    }
+    rafId = requestAnimationFrame(tickSpotifyBar);
+}
+tickSpotifyBar();
+
+// pause bg video when tab hidden to free GPU
+const bgVideo = document.getElementById("bg-video");
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) bgVideo.pause();
+    else bgVideo.play().catch(() => {});
+});
 
 document.querySelector(".discord-wrapper").addEventListener("mouseenter", () => {
     const card = document.getElementById("discord-card");
     card.addEventListener("transitionend", refreshMarquees, { once: true });
 });
+
+
+// ===== MUSIC PLAYER =====
+
+const STORAGE_KEY = "nem_player";
+
+const playlist = [
+    {
+        title: "this is what heartbreak feels like ",
+        artist: "JVKE",
+        src: "assets/this is what heartbreak feels like.mp3",
+        cover: "https://i.scdn.co/image/ab67616d0000b273f06a22f2e0d39d75b4f56814"
+    },
+    {
+        title: "Như vậy nhé",
+        artist: "Lil Wuyn, Wxrdie",
+        src: "assets/nhu vay nhe.mp3",
+        cover: "https://i.scdn.co/image/ab67616d0000b273c62daea05d1551334722dbf0"
+    },
+    {
+        title: "Badtrip",
+        artist: "RPT MCK",
+        src: "assets/badtrip.mp3",
+        cover: "https://i.scdn.co/image/ab67616d0000b273b315e8bb7ef5e57e9a25bb0f"
+    },
+    {
+        title: "2h",
+        artist: "RPT MCK",
+        src: "assets/badtrip.mp3",
+        cover: "https://i.ytimg.com/vi/mbEZ_9dhM_Y/maxresdefault.jpg"
+    },
+    {
+        title: "novacaine",
+        artist: "GenriX, CORBAL, Shiloh Dynasty",
+        src: "assets/novacaine.mp3",
+        cover: "https://i.scdn.co/image/ab67616d0000b27314e21b4fc24f2b3cae15ef93"
+    },
+    {
+        title: "Shut up My Moms Calling",
+        artist: "Hotel Ugly",
+        src: "assets/shut up my moms calling.mp3",
+        cover: "https://i.scdn.co/image/ab67616d0000b273350ab7a839c04bfd5225a9f5"
+    },
+];
+
+let current = 0;
+let isShuffle = false;
+
+const audio = document.getElementById("audio");
+const playBtn = document.getElementById("play");
+const nextBtn = document.getElementById("next");
+const prevBtn = document.getElementById("prev");
+const shuffleBtn = document.getElementById("shuffle");
+const muteBtn = document.getElementById("mute");
+const progress = document.getElementById("progress");
+const volume = document.getElementById("volume");
+
+const coverEl = document.getElementById("cover");
+const currentTimeEl = document.getElementById("current-time");
+const totalTimeEl = document.getElementById("total-time");
+
+// music marquee elements
+const musicTitleTrack = document.getElementById("music-title-track");
+const musicTitleA = document.getElementById("music-title-a");
+const musicTitleB = document.getElementById("music-title-b");
+const musicArtistTrack = document.getElementById("music-artist-track");
+const musicArtistA = document.getElementById("music-artist-a");
+const musicArtistB = document.getElementById("music-artist-b");
+
+function formatTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2,"0")}`;
+}
+
+function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        index: current,
+        time: audio.currentTime,
+        volume: audio.volume,
+        muted: audio.muted
+    }));
+}
+
+function loadState() {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!data) return;
+
+    current = data.index ?? 0;
+    audio.volume = data.volume ?? 1;
+    audio.muted = data.muted ?? false;
+    volume.value = audio.volume;
+
+    muteBtn.innerHTML = audio.muted
+        ? '<i class="fa-solid fa-volume-xmark"></i>'
+        : '<i class="fa-solid fa-volume-high"></i>';
+
+    loadSong(current);
+
+    audio.addEventListener("loadedmetadata", () => {
+        audio.currentTime = data.time ?? 0;
+        totalTimeEl.textContent = formatTime(audio.duration);
+    }, { once: true });
+}
+
+function loadSong(index) {
+    const song = playlist[index];
+    audio.src = song.src;
+    coverEl.src = song.cover;
+    setMarquee(musicTitleTrack, musicTitleA, musicTitleB, song.title);
+    setMarquee(musicArtistTrack, musicArtistA, musicArtistB, song.artist);
+}
+
+function playSong() {
+    audio.play();
+    playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+}
+
+function pauseSong() {
+    audio.pause();
+    playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+}
+
+playBtn.onclick = () => {
+    if (audio.paused) playSong();
+    else pauseSong();
+};
+
+nextBtn.onclick = () => {
+    current = isShuffle
+        ? Math.floor(Math.random() * playlist.length)
+        : (current + 1) % playlist.length;
+
+    loadSong(current);
+    playSong();
+    saveState();
+};
+
+prevBtn.onclick = () => {
+    current = (current - 1 + playlist.length) % playlist.length;
+    loadSong(current);
+    playSong();
+    saveState();
+};
+
+shuffleBtn.onclick = () => {
+    isShuffle = !isShuffle;
+    shuffleBtn.style.color = isShuffle ? "#8ab4ff" : "#fff";
+};
+
+muteBtn.onclick = () => {
+    audio.muted = !audio.muted;
+    muteBtn.innerHTML = audio.muted
+        ? '<i class="fa-solid fa-volume-xmark"></i>'
+        : '<i class="fa-solid fa-volume-high"></i>';
+    saveState();
+};
+
+volume.oninput = () => {
+    audio.volume = volume.value;
+    audio.muted = false;
+    muteBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+    saveState();
+};
+
+audio.ontimeupdate = () => {
+    progress.value = (audio.currentTime / audio.duration) * 100 || 0;
+    currentTimeEl.textContent = formatTime(audio.currentTime);
+    saveState();
+};
+
+audio.onloadedmetadata = () => {
+    totalTimeEl.textContent = formatTime(audio.duration);
+};
+
+progress.oninput = () => {
+    audio.currentTime = (progress.value / 100) * audio.duration;
+};
+
+audio.onended = () => nextBtn.click();
+
+loadState();
+if (!audio.src) loadSong(current);
+
+
+// ===== DONATING =====
+
+const rawQR = "00020101021138570010A000000727012700069704220113VQRQABTRF15880208QRIBFTTA53037045802VN62150107NPS6869080063042497";
+
+const donateQR = new QRCodeStyling({
+    width: 176,
+    height: 176,
+    data: rawQR,
+    image: "assets/logo.jpg",
+    qrOptions: { errorCorrectionLevel: "H" },
+    dotsOptions: { color: "#ffffff", type: "rounded" },
+    cornersSquareOptions: { type: "extra-rounded" },
+    backgroundOptions: { color: "transparent" },
+    imageOptions: { crossOrigin: "anonymous", margin: 2, imageSize: 0.2 }
+});
+
+donateQR.append(document.getElementById("donate-qr"));
+
+function openDonate() {
+    document.getElementById("donate-overlay").classList.add("open");
+    document.body.style.overflow = "hidden";
+}
+
+function closeDonate() {
+    document.getElementById("donate-overlay").classList.remove("open");
+    document.body.style.overflow = "";
+}
+
+function overlayClick(e) {
+    if (e.target === document.getElementById("donate-overlay")) closeDonate();
+}
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closeDonate();
+});
+
+function switchTab(name, btn) {
+    document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    btn.classList.add("active");
+}
+
+function copyField(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+        btn.classList.add("copied");
+        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        setTimeout(() => {
+            btn.classList.remove("copied");
+            btn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+        }, 1500);
+    });
+}
+
 
 // ===== CREDIT =====
 
@@ -273,4 +536,36 @@ credit.addEventListener("click", async () => {
     } catch (err) {
         credit.textContent = "copy failed";
     }
+});
+
+// ===== RESPONSIVE =====
+
+const discordWrapper = document.querySelector(".discord-wrapper");
+const discordBtn = document.getElementById("discord-link");
+
+discordBtn.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+        e.preventDefault();
+        e.stopPropagation();
+        discordWrapper.classList.toggle("active");
+    } else {
+        window.open("https://discord.com/users/941992157416398858", "_blank");
+    }
+});
+
+function closeDiscordCard(e) {
+    e.stopPropagation();
+    discordWrapper.classList.remove("active");
+}
+
+document.addEventListener("click", (e) => {
+    if (window.innerWidth <= 768) {
+        if (!discordWrapper.contains(e.target)) {
+            discordWrapper.classList.remove("active");
+        }
+    }
+});
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") discordWrapper.classList.remove("active");
 });
