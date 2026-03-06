@@ -498,7 +498,7 @@ h1 {
 /* ===== MUSIC PLAYER ===== */
 
 .music-player {
-    margin-top: 60px;
+    margin-top: 32px;
     border-radius: 20px;
     background: rgba(10,10,14,0.6);
     backdrop-filter: blur(24px);
@@ -945,8 +945,16 @@ h1 {
 
 .qr-with-btn {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+/* invisible spacer mirrors the download btn so QR stays centered */
+.qr-with-btn::before {
+    content: "";
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
 }
 
 .qr-frame {
@@ -955,6 +963,7 @@ h1 {
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.07);
     display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
 }
 
 #donate-qr canvas,
@@ -965,29 +974,29 @@ h1 {
 }
 
 .qr-download-btn {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 10px;
     background: rgba(255,255,255,0.06);
     border: 1px solid rgba(255,255,255,0.1);
-    color: rgba(255,255,255,0.45);
-    font-size: 0.9rem;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.82rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background 0.2s, color 0.2s, transform 0.15s;
-    flex-shrink: 0;
 }
 
 .qr-download-btn:hover {
-    background: rgba(255,255,255,0.13);
+    background: rgba(255,255,255,0.12);
     color: #fff;
     transform: scale(1.08);
 }
 
 .qr-download-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.93);
 }
 
 .qr-hint {
@@ -1142,18 +1151,15 @@ h1 {
         -webkit-backdrop-filter: none !important;
     }
 
-    /* flatten backgrounds to compensate */
     .discord-card { background: rgba(12,12,16,0.92) !important; }
     .music-player { background: rgba(10,10,14,0.88) !important; }
     .donate-modal { background: rgba(12,12,18,0.94) !important; }
     .donate-overlay { background: rgba(0,0,0,0.75) !important; }
 
-    /* simplify text-shadows */
     h1 { text-shadow: 0 0 8px rgba(255,255,255,0.2) !important; }
     .icon-btn:hover, .discord-btn:hover { text-shadow: none !important; }
     .song-text { text-shadow: none !important; }
 
-    /* promote composited layers for animated elements */
     .marquee-track.scrolling { will-change: transform; }
     #spotify-bar { will-change: width; }
     .discord-card { will-change: opacity, transform; }

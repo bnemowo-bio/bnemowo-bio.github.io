@@ -246,11 +246,9 @@ async function loadDiscord() {
 }
 
 loadDiscord();
-// poll less frequently on mobile to save CPU/battery
 const pollInterval = window.innerWidth <= 768 ? 5000 : 1000;
 setInterval(loadDiscord, pollInterval);
 
-// smooth spotify bar via rAF instead of relying on CSS transition + setInterval
 let rafId = null;
 function tickSpotifyBar() {
     const bar = document.getElementById("spotify-bar");
@@ -458,9 +456,8 @@ if (!audio.src) loadSong(current);
 
 const rawQR = "00020101021138570010A000000727012700069704220113VQRQABTRF15880208QRIBFTTA53037045802VN62150107NPS6869080063042497";
 
-// render at 2x (352px) then scale down via CSS → crisp on all DPR screens
-const QR_RENDER_SIZE = 352;
-const QR_DISPLAY_SIZE = 176;
+const QR_RENDER_SIZE = 1440;
+const QR_DISPLAY_SIZE = 186;
 
 const donateQR = new QRCodeStyling({
     width: QR_RENDER_SIZE,
@@ -470,7 +467,7 @@ const donateQR = new QRCodeStyling({
     qrOptions: { errorCorrectionLevel: "H" },
     dotsOptions: { color: "#ffffff", type: "rounded" },
     cornersSquareOptions: { type: "extra-rounded" },
-    backgroundOptions: { color: "#111114" },
+    backgroundOptions: { color: "transparent" },
     imageOptions: { crossOrigin: "anonymous", margin: 4, imageSize: 0.2 }
 });
 
@@ -486,12 +483,10 @@ function applyQRStyles() {
     }
 }
 
-// try immediately, then fallback with increasing delays
 applyQRStyles();
 setTimeout(applyQRStyles, 100);
 setTimeout(applyQRStyles, 500);
 
-// download QR as PNG
 function downloadQR() {
     donateQR.download({ name: "donate-qr", extension: "png" });
 }
