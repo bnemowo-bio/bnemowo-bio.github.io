@@ -498,7 +498,7 @@ h1 {
 /* ===== MUSIC PLAYER ===== */
 
 .music-player {
-    margin-top: 32px;
+    margin-top: 50px;
     border-radius: 20px;
     background: rgba(10,10,14,0.6);
     backdrop-filter: blur(24px);
