@@ -312,12 +312,6 @@ const playlist = [
         src: "assets/novacaine.mp3",
         cover: "https://i.scdn.co/image/ab67616d0000b27314e21b4fc24f2b3cae15ef93"
     },
-    {
-        title: "Shut up My Moms Calling",
-        artist: "Hotel Ugly",
-        src: "assets/shut up my moms calling.mp3",
-        cover: "https://i.scdn.co/image/ab67616d0000b273350ab7a839c04bfd5225a9f5"
-    },
 ];
 
 let current = 0;
@@ -464,19 +458,43 @@ if (!audio.src) loadSong(current);
 
 const rawQR = "00020101021138570010A000000727012700069704220113VQRQABTRF15880208QRIBFTTA53037045802VN62150107NPS6869080063042497";
 
+// render at 2x (352px) then scale down via CSS → crisp on all DPR screens
+const QR_RENDER_SIZE = 352;
+const QR_DISPLAY_SIZE = 176;
+
 const donateQR = new QRCodeStyling({
-    width: 176,
-    height: 176,
+    width: QR_RENDER_SIZE,
+    height: QR_RENDER_SIZE,
     data: rawQR,
     image: "assets/logo.jpg",
     qrOptions: { errorCorrectionLevel: "H" },
     dotsOptions: { color: "#ffffff", type: "rounded" },
     cornersSquareOptions: { type: "extra-rounded" },
-    backgroundOptions: { color: "transparent" },
-    imageOptions: { crossOrigin: "anonymous", margin: 2, imageSize: 0.2 }
+    backgroundOptions: { color: "#111114" },
+    imageOptions: { crossOrigin: "anonymous", margin: 4, imageSize: 0.2 }
 });
 
 donateQR.append(document.getElementById("donate-qr"));
+
+function applyQRStyles() {
+    const el = document.querySelector("#donate-qr canvas, #donate-qr svg");
+    if (el) {
+        el.style.width = QR_DISPLAY_SIZE + "px";
+        el.style.height = QR_DISPLAY_SIZE + "px";
+        el.style.borderRadius = "12px";
+        el.style.display = "block";
+    }
+}
+
+// try immediately, then fallback with increasing delays
+applyQRStyles();
+setTimeout(applyQRStyles, 100);
+setTimeout(applyQRStyles, 500);
+
+// download QR as PNG
+function downloadQR() {
+    donateQR.download({ name: "donate-qr", extension: "png" });
+}
 
 function openDonate() {
     document.getElementById("donate-overlay").classList.add("open");
