@@ -207,6 +207,9 @@
                 <button class="tab-btn" onclick="switchTab('bank', this)">
                     <i class="fa-solid fa-building-columns"></i> Bank Transfer
                 </button>
+                <button class="tab-btn" onclick="switchTab('paypal', this)">
+                    <i class="fa-brands fa-paypal"></i> PayPal
+                </button>
             </div>
 
             <!-- QR TAB -->
@@ -259,12 +262,42 @@
                 </div>
             </div>
 
+            <!-- PAYPAL TAB -->
+            <div class="tab-panel" id="tab-paypal">
+                <div class="paypal-card">
+                    <div class="paypal-logo-row">
+                        <i class="fa-brands fa-paypal paypal-icon"></i>
+                        <span class="paypal-brand">PayPal</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="bank-row">
+                        <div class="bank-label">Username</div>
+                        <div class="bank-value paypal-username">@bnemowo</div>
+                        <button class="copy-btn" onclick="copyField('@bnemowo', this)">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="divider"></div>
+                    <a
+                        href="https://paypal.me/bnemowo"
+                        target="_blank"
+                        class="paypal-send-btn"
+                        onclick="event.stopPropagation()"
+                    >
+                        <i class="fa-brands fa-paypal"></i>
+                        <span>send via paypal.me</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square paypal-ext-icon"></i>
+                    </a>
+                </div>
+                <div class="modal-note">
+                    any amount is appreciated 🙏
+                </div>
+            </div>
+
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
-
